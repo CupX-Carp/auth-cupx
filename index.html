@@ -1,278 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | CupX Corporation</title>
-  <meta name="description" content="Login portal for CupX Corporation tools and services." />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login | CupX Corporation</title>
 
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
-    }
+<style>
+*, *::before, *::after { box-sizing: border-box; }
 
-    header {
-      background: #020617;
-      padding: 20px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+body {
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#0f172a;
+color:#e5e7eb;
+}
 
-    header a {
-      color: #38bdf8;
-      text-decoration: none;
-      font-size: 14px;
-    }
+header {
+background:#020617;
+padding:20px 25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
 
-    .page {
-      min-height: calc(100vh - 64px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+header a {
+color:#38bdf8;
+text-decoration:none;
+font-size:14px;
+}
 
-    .login-box {
-      background: #020617;
-      padding: 30px;
-      width: 100%;
-      max-width: 360px;
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+.hamburger{
+cursor:pointer;
+font-size:20px;
+}
 
-    h1 {
-      text-align: center;
-      margin: 0 0 5px;
-    }
+.menu{
+position:fixed;
+top:0;
+left:-250px;
+width:250px;
+height:100%;
+background:#020617;
+padding:20px;
+transition:0.3s;
+z-index:1000;
+}
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      opacity: 0.85;
-      margin: 0 0 25px;
-    }
+.menu.show{
+left:0;
+}
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
+.menu a{
+display:block;
+color:#38bdf8;
+margin:15px 0;
+text-decoration:none;
+}
 
-    input {
-      display: block;
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 18px;
-      border-radius: 4px;
-      border: none;
-      outline: none;
-      font-size: 14px;
-      background: #1e293b;
-      color: #e5e7eb;
-    }
+.page{
+min-height:calc(100vh - 64px);
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
 
-    input:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+.login-box{
+background:#020617;
+padding:30px;
+width:100%;
+max-width:360px;
+border-radius:8px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
 
-    button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      background: #38bdf8;
-      color: #020617;
-      border: none;
-      border-radius: 4px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+h1{
+text-align:center;
+margin:0 0 5px;
+}
 
-    button:hover {
-      background: #0ea5e9;
-    }
+.subtitle{
+text-align:center;
+font-size:14px;
+opacity:0.85;
+margin:0 0 25px;
+}
 
-    .popup {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+input{
+width:100%;
+padding:10px;
+margin-bottom:15px;
+background:#1e293b;
+border:none;
+color:white;
+border-radius:4px;
+}
 
-    .popup.show {
-      display: flex;
-    }
+button{
+width:100%;
+padding:10px;
+background:#38bdf8;
+border:none;
+border-radius:4px;
+cursor:pointer;
+font-weight:bold;
+}
 
-    .popup-box {
-      background: #020617;
-      border: 1px solid #38bdf8;
-      border-radius: 12px;
-      padding: 32px;
-      max-width: 320px;
-      width: 90%;
-      text-align: center;
-      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+.dashboard{
+display:none;
+text-align:center;
+}
 
-    @keyframes popIn {
-      from { transform: scale(0.5); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
-    }
+.dashboard button{
+margin-top:10px;
+}
 
-    .popup-emoji {
-      font-size: 52px;
-      margin-bottom: 12px;
-    }
+.logout{
+background:#ef4444;
+margin-top:15px;
+}
 
-    .popup-title {
-      font-size: 20px;
-      font-weight: bold;
-      color: #38bdf8;
-      margin-bottom: 10px;
-    }
-
-    .popup-text {
-      font-size: 14px;
-      color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    .popup-close {
-      width: auto;
-      padding: 8px 24px;
-      font-size: 14px;
-    }
-
-    .note {
-      margin-top: 18px;
-      font-size: 13px;
-      text-align: center;
-      opacity: 0.7;
-      line-height: 1.6;
-    }
-
-    a {
-      color: #38bdf8;
-      text-decoration: none;
-    }
-  </style>
+</style>
 </head>
 
 <body>
 
+<div class="menu" id="menu">
+<h3>CupX</h3>
+
+<a href="https://amazx.cupx.in">Amazx</a>
+<a href="https://flipx.cupx.in">Flipx</a>
+<a href="https://pay.cupx.in">Pay</a>
+<a href="https://upi.cupx.in">UPI</a>
+
+<button onclick="logout()" class="logout">Logout</button>
+
+</div>
+
 <header>
-  <strong>CupX Corporation</strong>
-  <a href="https://cupx.in">← Back to Home</a>
+<div class="hamburger" onclick="toggleMenu()">☰</div>
+<strong>CupX Corporation</strong>
+<a href="https://cupx.in">← Home</a>
 </header>
 
 <div class="page">
-  <div class="login-box">
-    <h1>CupX Login</h1>
-    <p class="subtitle">Access CupX tools & services</p>
 
-    <form>
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="you@cupx.in" disabled>
+<div class="login-box" id="authBox">
 
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="••••••••" disabled>
+<h1>CupX Login</h1>
+<p class="subtitle">Access CupX tools & services</p>
 
-      <button type="button" onclick="tryLogin()">Login</button>
-    </form>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
 
-    <div class="note">
-      Login system is under development.<br>
-      For now, contact us at
-      <a href="mailto:info@cupx.in">info@cupx.in</a>
-    </div>
-  </div>
+<button onclick="login()">Login</button>
+<button onclick="signup()">Signup</button>
+
+<p id="status"></p>
+
 </div>
 
-<!-- Funny popup -->
-<div class="popup" id="popup">
-  <div class="popup-box">
-    <div class="popup-emoji" id="popupEmoji"></div>
-    <div class="popup-title" id="popupTitle"></div>
-    <div class="popup-text" id="popupText"></div>
-    <button class="popup-close" onclick="closePopup()">OK fine 😔</button>
-  </div>
+<div class="login-box dashboard" id="dashboard">
+
+<h2>Welcome</h2>
+<p id="userInfo"></p>
+
+<button onclick="openSite('https://amazx.cupx.in')">Open Amazx</button>
+<button onclick="openSite('https://flipx.cupx.in')">Open Flipx</button>
+<button onclick="openSite('https://pay.cupx.in')">Open Pay</button>
+<button onclick="openSite('https://upi.cupx.in')">Open UPI</button>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+</div>
+
 </div>
 
 <script>
-const messages = [
-  {
-    emoji: "🚧",
-    title: "Bro seriously?",
-    text: "The inputs are literally disabled. Did you think clicking harder would help?"
-  },
-  {
-    emoji: "🤖",
-    title: "Access Denied",
-    text: "Error 418: I'm a teapot. Also, the login doesn't exist yet. But mostly the teapot thing."
-  },
-  {
-    emoji: "👀",
-    title: "Interesting move.",
-    text: "You clicked a button on a page that says 'under development'. Respect the audacity honestly."
-  },
-  {
-    emoji: "🔐",
-    title: "Wrong password.",
-    text: "Just kidding — you didn't even enter one. The fields are disabled. You're logging into the void."
-  },
-  {
-    emoji: "📞",
-    title: "Have you tried turning it off and on again?",
-    text: "Our developers are working on the login system. By developers we mean one sleep-deprived person."
-  },
-  {
-    emoji: "🧃",
-    title: "CupX says no.",
-    text: "The login portal is under construction. Please hydrate and check back later."
-  },
-  {
-    emoji: "💀",
-    title: "404: Login Not Found",
-    text: "It's not you. It's us. Actually it's definitely us. We haven't built it yet."
-  },
-];
 
-let lastIndex = -1;
+const supabaseUrl = "YOUR_SUPABASE_URL"
+const supabaseKey = "YOUR_SUPABASE_ANON_KEY"
 
-function tryLogin() {
-  let index;
-  do { index = Math.floor(Math.random() * messages.length); }
-  while (index === lastIndex);
-  lastIndex = index;
+const supabaseClient = window.supabase.createClient(
+supabaseUrl,
+supabaseKey
+)
 
-  const m = messages[index];
-  document.getElementById("popupEmoji").innerText = m.emoji;
-  document.getElementById("popupTitle").innerText = m.title;
-  document.getElementById("popupText").innerText  = m.text;
-  document.getElementById("popup").classList.add("show");
+async function signup(){
+
+const username=document.getElementById("username").value
+const password=document.getElementById("password").value
+
+const {data,error}=await supabaseClient
+.from("users")
+.insert([{
+username:username,
+password:password,
+upi_id:username+"@cupx",
+balance:1000
+}])
+
+if(error){
+document.getElementById("status").innerText=error.message
+}else{
+document.getElementById("status").innerText="Signup success"
 }
 
-function closePopup() {
-  document.getElementById("popup").classList.remove("show");
 }
 
-// Close on backdrop click
-document.getElementById("popup").addEventListener("click", function(e) {
-  if (e.target === this) closePopup();
-});
+async function login(){
+
+const username=document.getElementById("username").value
+const password=document.getElementById("password").value
+
+const {data,error}=await supabaseClient
+.from("users")
+.select("*")
+.eq("username",username)
+.eq("password",password)
+.single()
+
+if(error){
+document.getElementById("status").innerText="Login failed"
+}else{
+
+localStorage.setItem("cupx_user",JSON.stringify(data))
+showDashboard(data)
+
+}
+
+}
+
+function showDashboard(user){
+
+document.getElementById("authBox").style.display="none"
+document.getElementById("dashboard").style.display="block"
+
+document.getElementById("userInfo").innerText=
+"User: "+user.username+" | UPI: "+user.upi_id
+
+}
+
+function logout(){
+
+localStorage.removeItem("cupx_user")
+location.reload()
+
+}
+
+function openSite(url){
+
+window.location.href=url
+
+}
+
+function toggleMenu(){
+
+document.getElementById("menu").classList.toggle("show")
+
+}
+
+const savedUser=JSON.parse(localStorage.getItem("cupx_user"))
+
+if(savedUser){
+showDashboard(savedUser)
+}
+
 </script>
+
+</body>
+</html>

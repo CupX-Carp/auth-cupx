@@ -11,7 +11,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #0f172a;
-            color: #e5e7eb;
+            color: #ffffff; /* Global White Text */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -26,7 +26,7 @@
             border-bottom: 1px solid #1e293b;
         }
 
-        .logo { font-size: 20px; font-weight: bold; color: #38bdf8; letter-spacing: 1px; }
+        .logo { font-size: 20px; font-weight: bold; color: #ffffff; letter-spacing: 1px; }
         header a { color: #38bdf8; text-decoration: none; font-size: 14px; }
 
         .page { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
@@ -41,8 +41,8 @@
             text-align: center;
         }
 
-        h1, h2 { margin-bottom: 8px; font-size: 26px; color: #f8fafc; }
-        .subtitle { font-size: 14px; opacity: .7; margin-bottom: 25px; }
+        h1, h2 { margin-bottom: 8px; font-size: 26px; color: #ffffff; }
+        .subtitle { font-size: 14px; opacity: .7; margin-bottom: 25px; color: #cbd5e1; }
 
         .input-group { position: relative; margin-bottom: 20px; width: 100%; text-align: left; }
 
@@ -76,18 +76,41 @@
 
         button {
             width: 100%;
-            height: 48px;
+            height: 45px;
             background: #38bdf8;
             color: #020617;
             border: none;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             margin-top: 10px;
+            transition: 0.2s;
         }
 
-        .logout-btn { background: #ef4444; color: white; margin-top: 20px; }
+        button:hover { opacity: 0.9; }
+
+        /* Subsidiary Buttons */
+        .sub-grid {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #334155;
+        }
+
+        .sub-btn {
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            height: 40px;
+            font-size: 13px;
+        }
+
+        .sub-btn:hover { background: #334155; color: #ffffff; }
+
+        .logout-btn { background: #ef4444; color: white; margin-top: 15px; }
 
         .switch {
             text-align: center;
@@ -99,7 +122,7 @@
 
         .error { color: #f87171; font-size: 13px; margin-bottom: 15px; min-height: 18px; }
 
-        #userInfo { margin: 20px 0; font-size: 15px; line-height: 1.6; background: #1e293b; padding: 15px; border-radius: 8px; }
+        #userInfo { margin: 15px 0; font-size: 14px; line-height: 1.6; background: #1e293b; padding: 15px; border-radius: 8px; text-align: left; }
 
         footer {
             background: #020617;
@@ -114,8 +137,8 @@
 <body>
 
 <header>
-    <div class="logo">CupX Corp</div>
-    <a href="https://cupx.in">← Home</a>
+    <div class="logo">CupX Corporation</div>
+    <a href="https://cupx.in">← Back to Home</a>
 </header>
 
 <div class="page">
@@ -154,11 +177,19 @@
 
     <div class="box" id="dashboardBox" style="display: none;">
         <h2>Welcome Back</h2>
-        <p class="subtitle">Logged into CupX ecosystem</p>
-        
         <div id="userInfo"></div>
 
         <button onclick="window.location.href='https://cupx.in'">Go to Home</button>
+        
+        <button id="subToggle" onclick="toggleSubs()" style="background: #ffffff; color: #020617;">Open Subsidiaries</button>
+        
+        <div class="sub-grid" id="subsidiaryList">
+            <button class="sub-btn" onclick="window.location.href='https://amazx.cupx.in'">AmazX</button>
+            <button class="sub-btn" onclick="window.location.href='https://flipx.cupx.in'">FlipX</button>
+            <button class="sub-btn" onclick="window.location.href='https://pay.cupx.in'">Pay</button>
+            <button class="sub-btn" onclick="window.location.href='https://upi.cupx.in'">UPI</button>
+        </div>
+
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 </div>
@@ -183,12 +214,19 @@
 
     function togglePass(fieldId, btnElement) {
         const field = document.getElementById(fieldId);
-        if (field.type === "password") {
-            field.type = "text";
-            btnElement.innerText = "Hide";
+        btnElement.innerText = (field.type === "password") ? "Hide" : "Show";
+        field.type = (field.type === "password") ? "text" : "password";
+    }
+
+    function toggleSubs() {
+        const list = document.getElementById('subsidiaryList');
+        const btn = document.getElementById('subToggle');
+        if (list.style.display === 'grid') {
+            list.style.display = 'none';
+            btn.innerText = "Open Subsidiaries";
         } else {
-            field.type = "password";
-            btnElement.innerText = "Show";
+            list.style.display = 'grid';
+            btn.innerText = "Close Subsidiaries";
         }
     }
 
@@ -196,7 +234,7 @@
         document.getElementById('authBox').style.display = 'none';
         document.getElementById('dashboardBox').style.display = 'block';
         document.getElementById('userInfo').innerHTML = `
-            <strong>User:</strong> ${user.username}<br>
+            <strong>Username:</strong> ${user.username}<br>
             <strong>UPI ID:</strong> ${user.upi_id}<br>
             <strong>Balance:</strong> ₹${user.balance}
         `;
@@ -212,39 +250,23 @@
         const u = document.getElementById('user').value.trim().toLowerCase();
         const p = document.getElementById('pass').value;
         const msg = document.getElementById('msg');
-        msg.innerText = "";
 
         if (isSignup) {
             const fn = document.getElementById('fullname').value.trim();
-            const cp = document.getElementById('confirmPass').value;
-
-            if (!fn) return msg.innerText = "Full name is required";
-            if (p !== cp) return msg.innerText = "Passwords do not match";
-
             const { error } = await client.from('users').insert([{ 
                 username: u, password: p, full_name: fn, upi_id: u + "@cupx", balance: 1000 
             }]);
-
             if (error) msg.innerText = error.message;
-            else { alert("Signup Successful! Please Login."); toggleMode(); }
-            
+            else { alert("Signup Successful!"); toggleMode(); }
         } else {
             const { data, error } = await client.from('users').select('*').eq('username', u).eq('password', p).single();
-
-            if (error || !data) {
-                msg.innerText = "Invalid credentials.";
-            } else {
-                localStorage.setItem("cupx_user", JSON.stringify(data));
-                showDashboard(data);
-            }
+            if (error || !data) msg.innerText = "Invalid credentials.";
+            else { localStorage.setItem("cupx_user", JSON.stringify(data)); showDashboard(data); }
         }
     });
 
-    // On Load: Check if user is already logged in
     const savedUser = JSON.parse(localStorage.getItem("cupx_user"));
-    if (savedUser) {
-        showDashboard(savedUser);
-    }
+    if (savedUser) showDashboard(savedUser);
 </script>
 </body>
 </html>
